@@ -1,0 +1,45 @@
+<html>
+<head>
+	<title>CHAT</title>
+    <link rel="stylesheet" type="text/css" href="/style.css" >
+</head>
+<body>
+	<div class="chatbox">
+	  <h3>CHAT</h3>
+	  <div class="chat_inner"> </div>
+	  <div class="form">
+		<form action="">
+		  <input type="text" placeholder="Введите сообщение..."/> <button class="send">Отправить</button>
+		</form>
+	  </div>
+	</div>
+	<script src="/socket.io.js"></script>
+	<script src="/jquery-1.11.1.js"></script>
+	<script>
+	$(function () {
+		var socket = io();
+		var doc = document;
+		var now = new Date();
+		var now_string = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+		$('form').submit(function(){
+			socket.emit('chat message', $('input').val(), socket.id, now_string);
+			text = $('input').val();
+			lastDiv = doc.createElement('div');
+			lastDiv.className = 'chat_out clearfix';
+			lastDiv.innerHTML = '<span class="message">'+text+'</span><span class="author">Отправленно вами в '+now_string+'</span>';
+			doc.querySelector('.chat_inner').appendChild(lastDiv);
+			$('input').val('');
+			return false;
+		});
+		socket.on('chat message', function(msg, id, now_string){
+			if(socket.id != id){
+				lastDiv = doc.createElement('div');
+				lastDiv.className = 'chat_in clearfix';
+				lastDiv.innerHTML = '<span class="message">'+msg+'</span><span class="author">Отправленно пользователем <b>'+id+'</b> в '+now_string+'</span>';
+				doc.querySelector('.chat_inner').appendChild(lastDiv);
+			}
+		});
+	});
+	</script>
+</body>
+</html>
